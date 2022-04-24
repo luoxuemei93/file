@@ -1,0 +1,108 @@
+<!--
+ * 在点击标记后显示弹出框，模块分解：
+  openlayers控件是固定在屏幕上带DOM元素可见的小部件，可以是按钮，可以是只带信息的信息框，同时你自己也可以自定义自己需要的小部件
+    常用的控件：
+      controldefaults，地图默认包含的控件。
+      fullscreen，全屏控件，用于全屏幕查看地图。
+      mouseposition，鼠标位置控件，显示鼠标所在地图位置的坐标，可以自定义投影。
+      overviewmap，地图全局视图控件（鹰眼图）。
+      scaleline，比例尺控件。
+      zoom，地图放控件。
+      zoomslider，地图缩放滑块刻度控件。
+
+    使用控件:
+      实例化地图map，通过参数control传入，不传值默认controldefaults中的控件。
+      也可以利用map对象的addControl()或addControls()方法在地图上添加Controls对象。
+      需要在默认控件基础上继续添加控件，可以使用ol.control.defaults().extend([new ol.control.FullScreen()]) 方法传入。
+ * 
+ */
+
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./ol.css" />
+    <!-- <script type="text/javascript" src="./ol.js"></script> -->
+    <!-- <link rel="stylesheet" href="https://openlayers.org/en/v5.3.0/css/ol.css" /> -->
+    <script type="text/javascript" src="https://openlayers.org/en/v5.3.0/build/ol.js"></script>
+    <title>openlayers overlay</title>
+  </head>
+  <body>
+    <div class="map" id="map"></div>
+    <!-- <div id="controlId" class="myControl">我是自定义控件</div> -->
+    <script>
+      // 初始化地图
+      // 对于要渲染的地图，需要一个目标容器、一个视图、以及一个或多个图层：
+      function init() {
+        // overviewmap 地图全局视图（鹰眼图）
+        var overviewMapControl = new ol.control.OverviewMap({
+          collapsed: false,
+          view: new ol.View({
+            projection: "EPSG:4326", // 概览图的自定义视图，需要使用与主图相同的投影
+          }),
+          layers: [
+            // new ol.layer.Tile({
+            //   source: new ol.source.OSM(),
+            // }),
+          ],
+        });
+
+        map = new ol.Map({
+          target: "map",
+          view: new ol.View({
+            center: [113.0567, 23.67537],
+            maxZoom: 18,
+            minZoom: 8,
+            zoom: 13,
+            projection: "EPSG:4326",
+          }),
+          
+          layers: [
+            new ol.layer.Tile({
+              source: new ol.source.OSM(),
+            }),
+          ],
+          // controls: new ol.control.defaults(),
+          controls: new ol.control.defaults().extend([overviewMapControl]), //第一种
+        });
+
+        // scaleline 控件、zoom 控件、zoomslider 控件
+        map.addControl(new ol.control.ScaleLine());
+        map.addControl(new ol.control.Zoom());
+        map.addControl(new ol.control.ZoomSlider());
+
+        // fullscreen 全屏控件
+        map.addControl(new ol.control.FullScreen());
+
+        // mouseposition 显示鼠标所在坐标
+        var mousePositionControl = new ol.control.MousePosition({
+          projection: "EPSG:4326", //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+        });
+        map.addControl(mousePositionControl);
+
+        // 自定义控件
+        const myElement = document.getElementById("controlId");
+        var myControl = new ol.control({ element: myElement });
+        map.addControl(myControl);
+      }
+      init();
+    </script>
+  </body>
+  <style>
+    .map {
+      height: 100%;
+      width: 100%;
+      padding: 0px;
+      position: relative;
+    }
+    .myControl {
+      position: absolute;
+      padding: 10px;
+      background: #ccc;
+      top: 10px;
+      left: 100px;
+    }
+  </style>
+</html>
